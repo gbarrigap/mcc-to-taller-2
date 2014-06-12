@@ -5,6 +5,8 @@
  */
 package famipics.domain;
 
+import famipics.dao.DaoFactory;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -76,8 +78,32 @@ public class User {
     public void setPics(List<Pic> pics) {
         this.pics = pics;
     }
-    
+
+    /**
+     * Get all the users from the database.
+     *
+     * @return A list of existent users.
+     */
+    public List<User> getAll() {
+        List<User> users = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            User u = new User();
+            u.setEmail(String.format("email%d@example.com", i));
+            u.setDisplayName(String.format("User %d", i));
+            users.add(u);
+        }
+        return users;
+    }
+
+    public static User authenticate(String email, String password) {
+        return DaoFactory.getUserDao().authenticate(email, password);
+    }
+
+    public boolean authorize() {
+        return true;
+    }
+
     public void persist() {
-        
+
     }
 }

@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package famipics.dao.sqlite;
 
 import famipics.dao.UserDao;
@@ -23,11 +22,11 @@ import java.util.logging.Logger;
 public class UserDaoSqlite implements UserDao {
 
     private final Connection connection;
-    
+
     public UserDaoSqlite(Connection connection) {
         this.connection = connection;
     }
-    
+
     @Override
     public void create(User user) {
         try {
@@ -67,5 +66,25 @@ public class UserDaoSqlite implements UserDao {
     public List<User> retrieveAll() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
+    @Override
+    public User authenticate(String email, String password) {
+        try {
+            String query = String.format("SELECT uid, display_name AS count FROM users WHERE email = '%s' AND password = '%s'", email, password);
+            Statement statement = this.connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            while (rs.next()) {
+                User user = new User();
+                user.setUid(rs.getInt("uid"));
+                user.setEmail(email);
+                user.setPassword(password);
+                user.setDisplayName(rs.getString("dispay_name"));
+                return user;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(UserDaoSqlite.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
 }

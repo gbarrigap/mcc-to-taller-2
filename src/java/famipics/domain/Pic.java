@@ -5,7 +5,9 @@
  */
 package famipics.domain;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -66,5 +68,11 @@ public class Pic {
 
     public void setModifiedOn(Date modifiedOn) {
         this.modifiedOn = modifiedOn;
+    }
+    
+    public List<Pic> getAll() {
+        List<Pic> pics = new ArrayList<>();
+        
+        return pics;
     }
 }
