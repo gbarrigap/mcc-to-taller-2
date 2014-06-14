@@ -3,11 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package famipics.servlet;
 
+import famipics.dao.InvalidLoginException;
+import famipics.dao.RepositoryConnectionException;
+import famipics.domain.User;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,33 +34,28 @@ public class Login extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
-        //String email = request.getParameter("email");
-        //String password = request.getParameter("password");
-        
-        //User user = User.authenticate(email, password);
-        
-        //if (user.getUid() > 0) {
-            //HttpSession session = request.getSession(true);
-        //}
-        //Cookie cookie = new Cookie("token", Long.toString(now));
-        
         HttpSession session = request.getSession(true);
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet Login</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Login at " + request.getContextPath() + "</h1>");
-            out.println(String.format("<h2>%s</h2>", session.toString()));
-            out.println("</body>");
-            out.println("</html>");
+
+        try {
+            String email = request.getParameter("email");
+            String password = request.getParameter("password");
+            
+            User user = User.authenticate(email, password);
+            
+            session.setAttribute("currentUser", user);
+
+            // Send the user to the main page.
+            response.sendRedirect("Pics.jsp");
+        } catch (InvalidLoginException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            // Redirects to the login page with a message.
+            response.sendRedirect("Login.jsp");
+            //response.
+        } catch (RepositoryConnectionException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            // Let the user know about the error!
         }
     }
 

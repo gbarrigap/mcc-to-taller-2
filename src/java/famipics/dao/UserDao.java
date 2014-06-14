@@ -24,6 +24,7 @@ public interface UserDao extends Dao<User> {
      * @param email
      * @param password
      * @return An autenticated user or <code>null</code>.
+     * @throws famipics.dao.InvalidLoginException
      */
-    public User authenticate(String email, String password);
+    public User authenticate(String email, String password) throws InvalidLoginException;
 }

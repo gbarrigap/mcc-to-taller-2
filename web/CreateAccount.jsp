@@ -1,5 +1,4 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<jsp:useBean id="PicBean" class="famipics.domain.Pic"></jsp:useBean>
 <!DOCTYPE html>
 <html>
     <head>

@@ -6,8 +6,15 @@
 package famipics.domain;
 
 import famipics.dao.DaoFactory;
+import famipics.dao.RepositoryConnectionException;
+import famipics.dao.UniqueConstraintException;
+import famipics.dao.InvalidLoginException;
+import famipics.dao.RecordNotFoundException;
+import famipics.dao.UserDao;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -95,15 +102,38 @@ public class User {
         return users;
     }
 
-    public static User authenticate(String email, String password) {
-        return DaoFactory.getUserDao().authenticate(email, password);
+    public static User authenticate(String email, String password) throws InvalidLoginException, RepositoryConnectionException {
+        try {
+            return DaoFactory.getUserDao().authenticate(email, password);
+        } catch (InvalidLoginException | RepositoryConnectionException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        }
+    }
+
+    public static User retrieve(int uid) throws RecordNotFoundException, RepositoryConnectionException {
+        try {
+            return DaoFactory.getUserDao().retrieve(uid);
+        } catch (RecordNotFoundException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RecordNotFoundException();
+        } catch (RepositoryConnectionException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        }
     }
 
     public boolean authorize() {
         return true;
     }
 
-    public void persist() {
-
+    public void persist() throws UniqueConstraintException {
+        UserDao dao = null;
+        try {
+            dao = DaoFactory.getUserDao();
+            DaoFactory.getUserDao().create(this);
+        } catch (Exception ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

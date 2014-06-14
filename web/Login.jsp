@@ -1,9 +1,6 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <html>
     <head>
         <title>FamiPics</title>
@@ -24,7 +21,7 @@ and open the template in the editor.
         </div>
 
         <div class="container">
-            <form action="post">
+            <form method="post" action="Login">
                 <fieldset>
                     <div class="form-group">
                         <label for="email">Email</label>
@@ -32,23 +29,13 @@ and open the template in the editor.
                     </div>
 
                     <div class="form-group">
-                        <label for="display-name">Display Name</label>
-                        <input id="display-name" name="display-name" type="text" class="form-control" />
-                    </div>
-
-                    <div class="form-group">
                         <label for="password">Password</label>
                         <input id="password" name="password" type="text" class="form-control" />
                     </div>
 
-                    <div class="form-group">
-                        <label for="password-confirmation">Password Confirmation</label>
-                        <input id="password-confirmation" name="password-confirmation" type="text" class="form-control" />
-                    </div>
-
                     <div class="form-group text-right">
-                        <a href="#">I have an account</a>
-                        <input type="submit" value="Create my account" class="btn btn-primary" />
+                        <a href="#">I don't have an account</a>
+                        <input type="submit" value="Login" class="btn btn-primary" />
                     </div>
                 </fieldset>
             </form>

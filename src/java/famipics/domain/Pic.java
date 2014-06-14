@@ -5,9 +5,15 @@
  */
 package famipics.domain;
 
+import famipics.dao.DaoFactory;
+import famipics.dao.RecordNotFoundException;
+import famipics.dao.RepositoryConnectionException;
+import famipics.dao.UniqueConstraintException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -16,6 +22,7 @@ import java.util.List;
 public class Pic {
 
     private int pid;
+    private User user;
     private String filename;
     private String comment;
     private Date uploadedOn;
@@ -28,6 +35,14 @@ public class Pic {
 
     public void setPid(int pid) {
         this.pid = pid;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getFilename() {
@@ -70,9 +85,32 @@ public class Pic {
         this.modifiedOn = modifiedOn;
     }
     
+    public void persist() throws RepositoryConnectionException, UniqueConstraintException {
+        DaoFactory.getPicDao().create(this);
+    }
+    
+    public static String getSecureFilenamePrefix() {
+        return Long.toString(new Date().getTime());
+    }
+    
     public List<Pic> getAll() {
-        List<Pic> pics = new ArrayList<>();
-        
-        return pics;
+        try {
+            return DaoFactory.getPicDao().retrieveAll();
+        } catch (RepositoryConnectionException ex) {
+            Logger.getLogger(Pic.class.getName()).log(Level.SEVERE, null, ex);
+            return new ArrayList<>();
+        }
+    }
+    
+    public static Pic retrieve(int pid) throws RecordNotFoundException, RepositoryConnectionException {
+        try {
+            return DaoFactory.getPicDao().retrieve(pid);
+        } catch (RecordNotFoundException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RecordNotFoundException();
+        } catch (RepositoryConnectionException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        }
     }
 }

@@ -7,11 +7,24 @@
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>JSP Page</title>
+
+            <!-- Boostrap -->
+            <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" />
+            <link rel="stylesheet" href="lib/bootstrap/css/bootstrap-theme.css" />
+            <script src="lib/bootstrap/js/bootstrap.js"></script>
+
+            <!-- Custom CSS & JavaScript -->
+            <link rel="stylesheet" href="css/screen.css" />
         </head>
         <body>
-            <h1>Hello World!</h1>
-        <c:forEach var="user" items="${UserBean.all}">
-            <h2>H_<c:out value="${user.displayName}"></c:out></h2>
-        </c:forEach>
+        <c:import url="Header.jsp"></c:import>
+
+            <div class="container">
+                <ul>
+            <c:forEach var="user" items="${UserBean.all}">
+                <li><c:out value="${user.displayName}"></c:out><c:if test="${sessionScope.currentUser.admin}">[<a href="">delete</a>]</c:if></li>
+            </c:forEach>
+                </ul>
+        </div>
     </body>
 </html>
