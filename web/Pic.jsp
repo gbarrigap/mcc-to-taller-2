@@ -8,7 +8,8 @@
 <%@page import="famipics.domain.Pic"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<% Pic pic = DaoFactory.getPicDao().retrieve(Integer.parseInt(request.getParameter("pid")));%>
+<jsp:useBean id="PicBean" class="famipics.domain.Pic" />
+<c:set var="pic" value="${PicBean.find(param.pid)}" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -24,9 +25,22 @@
         <link rel="stylesheet" href="css/screen.css" />
     </head>
     <body>
-        <c:import url="Header.jsp"></c:import>
+        <c:import url="Header.jsp" />
 
-            <img src="files/pics/<%= pic.getFilename()%>" style="max-width: 95%" />
-        <p><%= pic.getComment()%></p>
+        <div class="container" style="width: inherit">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="well">${pic.comment}</div>
+                    <img src="files/pics/${pic.filename}" style="width: 100%" />
+                    <div class="well-sm">
+                        <p>Uploaded on: ${pic.uploadedOn}</p>
+                        <p>Las modification: ${pic.modifiedOn}</p>
+                        <c:if test="${pic.uid == sessionScope.currentUser.uid}">
+                            <p>[<a href="EditPic.jsp?pid=${pic.pid}">edit</a>]</p>
+                        </c:if>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

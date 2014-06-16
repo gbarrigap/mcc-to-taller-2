@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +25,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -31,6 +33,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -63,6 +66,8 @@ public class PicDaoJaxp implements PicDao {
             childElement.setAttribute("uid", Integer.toString(pic.getUser().getUid()));
             childElement.setAttribute("filename", pic.getFilename());
             childElement.setAttribute("comment", pic.getComment());
+            childElement.setAttribute("uploaded", pic.getUploadedOn().toString());
+            childElement.setAttribute("modified", pic.getModifiedOn().toString());
 
             //You can also use setTextContent() method to write between nodes
             doc.getElementsByTagName("pics").item(0).appendChild(childElement);
@@ -103,12 +108,69 @@ public class PicDaoJaxp implements PicDao {
 
     @Override
     public void update(Pic t) throws RepositoryConnectionException, RecordNotFoundException, UniqueConstraintException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(JaxpFactory.repositoryPath);
+
+            NodeList list = doc.getElementsByTagName("pic");
+            for (int i = 0; i < list.getLength(); i++) {
+                Element el = (Element) list.item(i);
+                if (Integer.toString(t.getPid()).equals(el.getAttribute("pid"))) {
+                    el.setAttribute("comment", t.getComment());
+                    el.setAttribute("modified", t.getModifiedOn());
+
+                    //Save the Created XML on Local Disc using Transformation APIs as Discussed
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                    transformer.transform(new DOMSource(doc), new StreamResult(new FileOutputStream(JaxpFactory.repositoryPath)));
+                    System.out.println("XML File Created Succesfully");
+                    return;
+                }
+            }
+            throw new RecordNotFoundException();
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerConfigurationException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
-    public void delete(Pic t) throws RepositoryConnectionException, RecordNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void delete(Pic pic) throws RepositoryConnectionException, RecordNotFoundException {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(JaxpFactory.repositoryPath);
+
+            NodeList list = doc.getElementsByTagName("pic");
+            for (int i = 0; i < list.getLength(); i++) {
+                Element el = (Element) list.item(i);
+                if (Integer.toString(pic.getPid()).equals(el.getAttribute("pid"))) {
+                    doc.getElementsByTagName("pics").item(0).removeChild(list.item(i));
+
+                    //Save the Created XML on Local Disc using Transformation APIs as Discussed
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                    transformer.transform(new DOMSource(doc), new StreamResult(new FileOutputStream(JaxpFactory.repositoryPath)));
+                    System.out.println("XML File Created Succesfully");
+                    return;
+                }
+            }
+            throw new RecordNotFoundException();
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerConfigurationException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -143,6 +205,8 @@ public class PicDaoJaxp implements PicDao {
                 pic.setUid(Integer.parseInt(attributes.getValue("uid")));
                 pic.setFilename(attributes.getValue("filename"));
                 pic.setComment(attributes.getValue("comment"));
+                pic.setUploadedOn(attributes.getValue("uploaded"));
+                pic.setModifiedOn(attributes.getValue("modified"));
                 pics.add(pic);
             }
         }

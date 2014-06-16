@@ -31,6 +31,8 @@ public interface UserDao extends Dao<User> {
     
     public void setRememberToken(User user) throws RepositoryConnectionException, RecordNotFoundException;
     
+    public void setLastLogin(User user) throws RepositoryConnectionException, RecordNotFoundException;
+    
     public User findByRememberToken(String token) throws RepositoryConnectionException, RecordNotFoundException;
     
     public User findByEmail(String email) throws RepositoryConnectionException, RecordNotFoundException;

@@ -47,33 +47,34 @@
             </style>
             <script lang="javascript">
                 $(function() {
-                    blueimp.Gallery(
-                            document.getElementById('links'), {
-                        onslide: function(index, slide) {
-                            var text = this.list[index].getAttribute('data-description'),
-                                    node = this.container.find('.description');
-                            node.empty();
-                            if (text) {
-                                node[0].appendChild(document.createTextNode(text));
-                            }
-                        }
-                    });
-
-                    document.getElementById('links').onclick = function(event) {
-                        event = event || window.event;
-                        var target = event.target || event.srcElement,
-                                link = target.src ? target.parentNode : target,
-                                options = {index: link, event: event, onslide: function(index, slide) {
-                                        var text = this.list[index].getAttribute('data-description'),
-                                                node = this.container.find('.description');
-                                        node.empty();
-                                        if (text) {
-                                            node[0].appendChild(document.createTextNode(text));
-                                        }
-                                    }},
-                        links = this.getElementsByTagName('a');
-                        blueimp.Gallery(links, options);
-                    };
+                    $("div.alert").fadeOut(10000);
+//                    blueimp.Gallery(
+//                            document.getElementById('links'), {
+//                        onslide: function(index, slide) {
+//                            var text = this.list[index].getAttribute('data-description'),
+//                                    node = this.container.find('.description');
+//                            node.empty();
+//                            if (text) {
+//                                node[0].appendChild(document.createTextNode(text));
+//                            }
+//                        }
+//                    });
+//
+//                    document.getElementById('links').onclick = function(event) {
+//                        event = event || window.event;
+//                        var target = event.target || event.srcElement,
+//                                link = target.src ? target.parentNode : target,
+//                                options = {index: link, event: event, onslide: function(index, slide) {
+//                                        var text = this.list[index].getAttribute('data-description'),
+//                                                node = this.container.find('.description');
+//                                        node.empty();
+//                                        if (text) {
+//                                            node[0].appendChild(document.createTextNode(text));
+//                                        }
+//                                    }},
+//                        links = this.getElementsByTagName('a');
+//                        blueimp.Gallery(links, options);
+//                    };
                 });
             </script>
         </head>
@@ -117,8 +118,10 @@
                 </div>
             </div>
 
-            <p>${sessionScope.uploadResultMessage}</p>
-        <c:remove var="uploadResultMessage" scope="session" />
+        <c:if test="${sessionScope.message != null}">
+            <div class="alert alert-${sessionScope.messageClass}">${sessionScope.message}</div>
+            <c:remove var="message" scope="session" />
+        </c:if>
 
         <div class="row">
             <c:forEach var="pic" items="${PicBean.all}">
@@ -132,8 +135,8 @@
                             <p>
                                 [<a href="Pic.jsp?pid=${pic.pid}">view</a>]
                                 <c:if test="${sessionScope.currentUser.admin || sessionScope.currentUser.uid == pic.uid}">
-                                    [<a href="">edit</a>]
-                                    [<a href="">delete</a>]
+                                    [<a href="EditPic.jsp?pid=${pic.pid}">edit</a>]
+                                    [<a href="DeletePic?pid=${pic.pid}">delete</a>]
                                 </c:if>
                             </p>
                         </div>

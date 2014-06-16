@@ -9,3 +9,17 @@ div.thumbnail div.caption {
 nav > div.container {
     width: inherit;
 }
+
+textarea {
+    /*width: 470px;
+    max-width: 470px;
+    height: 125px;
+    max-height: 125px;*/
+    resize: none;
+}
+
+input#filename {
+    border: 0;
+    padding: 0;
+    margin: 0;
+}

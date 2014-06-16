@@ -2,16 +2,15 @@
 <root>
     <entities>
         <users>
-        <user admin="True" display-name="Aministrator" email="admin" famipics-remember-token="926BC2072EEFDF80F4C6B82864030472" last-login="0" password="a" uid="1"/>
+        <user admin="true" display-name="Aministrator" email="admin" famipics-remember-token="AE993973BFEE9C3BC29A2C7B22FDEC01" last-login="Mon Jun 16 10:25:32 CLT 2014" password="a" uid="1"/>
         </users>
     
         <pics>
-        <pic comment="" filename="1402891734662-srcBMW-Concept-M5-2004-001.jpg" pid="23" uid="1"/>
         </pics>
     </entities>
     
     <constraints>
-        <uids last="2"/>
-        <pids last="23"/>
+        <uids last="8"/>
+        <pids last="49"/>
     </constraints>
 </root>

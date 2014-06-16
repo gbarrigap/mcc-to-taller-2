@@ -170,17 +170,81 @@ public class UserDaoJaxp implements UserDao {
 
     @Override
     public User retrieve(int id) throws RepositoryConnectionException, RecordNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (User user : this.retrieveAll()) {
+            if (id == user.getUid()) {
+                return user;
+            }
+        }
+        throw new RecordNotFoundException();
     }
 
     @Override
     public void update(User t) throws RepositoryConnectionException, RecordNotFoundException, UniqueConstraintException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(JaxpFactory.repositoryPath);
+
+            NodeList list = doc.getElementsByTagName("user");
+            for (int i = 0; i < list.getLength(); i++) {
+                Element el = (Element) list.item(i);
+                if (Integer.toString(t.getUid()).equals(el.getAttribute("uid"))) {
+                    el.setAttribute("email", t.getEmail());
+                    el.setAttribute("display-name", t.getDisplayName());
+                    el.setAttribute("password", t.getPassword());
+                    el.setAttribute("admin", Boolean.toString(t.isAdmin()));
+
+                    //Save the Created XML on Local Disc using Transformation APIs as Discussed
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                    transformer.transform(new DOMSource(doc), new StreamResult(new FileOutputStream(JaxpFactory.repositoryPath)));
+                    System.out.println("XML File Created Succesfully");
+                    return;
+                }
+            }
+            throw new RecordNotFoundException();
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerConfigurationException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public void delete(User t) throws RepositoryConnectionException, RecordNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(JaxpFactory.repositoryPath);
+
+            NodeList list = doc.getElementsByTagName("user");
+            for (int i = 0; i < list.getLength(); i++) {
+                Element el = (Element) list.item(i);
+                if (Integer.toString(t.getUid()).equals(el.getAttribute("uid"))) {
+                    doc.getElementsByTagName("users").item(0).removeChild(list.item(i));
+
+                    //Save the Created XML on Local Disc using Transformation APIs as Discussed
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                    transformer.transform(new DOMSource(doc), new StreamResult(new FileOutputStream(JaxpFactory.repositoryPath)));
+                    System.out.println("XML File Created Succesfully");
+                    return;
+                }
+            }
+            throw new RecordNotFoundException();
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerConfigurationException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -211,6 +275,39 @@ public class UserDaoJaxp implements UserDao {
         }
     }
 
+    @Override
+    public void setLastLogin(User user) throws RepositoryConnectionException, RecordNotFoundException {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(JaxpFactory.repositoryPath);
+
+            NodeList list = doc.getElementsByTagName("user");
+            for (int i = 0; i < list.getLength(); i++) {
+                Element el = (Element) list.item(i);
+                if (Integer.toString(user.getUid()).equals(el.getAttribute("uid"))) {
+                    el.setAttribute("last-login", user.getLastLogin());
+
+                    //Save the Created XML on Local Disc using Transformation APIs as Discussed
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                    transformer.transform(new DOMSource(doc), new StreamResult(new FileOutputStream(JaxpFactory.repositoryPath)));
+                    System.out.println("XML File Created Succesfully");
+                    return;
+                }
+            }
+            throw new RecordNotFoundException();
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerConfigurationException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerException ex) {
+            Logger.getLogger(UserDaoJaxp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     private class UsersHandler extends DefaultHandler {
 
         private final List<User> users;
@@ -233,6 +330,7 @@ public class UserDaoJaxp implements UserDao {
                 user.setPassword(attributes.getValue("password"));
                 user.setAdmin(Boolean.parseBoolean(attributes.getValue("admin")));
                 user.setRememberToken(attributes.getValue("famipics-remember-token"));
+                user.setLastLogin(attributes.getValue("last-login"));
                 getUsers().add(user);
             }
         }

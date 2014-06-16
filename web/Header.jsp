@@ -2,27 +2,23 @@
 <nav class="navbar navbar-default navbar-static-top" role="navigation">
     <div class="container">
         <ul class="nav navbar-nav">
-            <li class="active"><a href="Landing">Home</a></li>
-            <li><a href="Users.jsp">Users</a></li>
-            <li><a href="UploadPictures.jsp">Upload Picture</a></li>
-            
-            <!--li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li><a href="#">Something else here</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Separated link</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">One more separated link</a></li>
-                </ul>
-            </li-->
+            <li class="${'home' == param.page ? 'active' : ''}"><a href="Landing">Home</a></li>
+            <li class="${'users' == param.page ? 'active' : ''}"><a href="Users.jsp?page=users">Users</a></li>
+            <li class="${'upload' == param.page ? 'active' : ''}"><a href="UploadPictures.jsp?page=upload">Upload Picture</a></li>
         </ul>
-        <p class="navbar-text navbar-right">Signed in as <a href="#" class="navbar-link"><c:out value="${sessionScope.currentUser.displayName}"></c:out>[<a href="Logout">Logout</a>]</p>
+        
+        <ul class="nav navbar-nav navbar-right">
+            <li><p class="navbar-text navbar-right">Signed in as</p></li>
+            <li class="dropdown navbar-right">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">${sessionScope.currentUser.displayName}<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="EditUser.jsp?uid=${sessionScope.currentUser.uid}">My profile</a></li>
+                    <li><a href="#">My pics</a></li>
+                    <li><a href="#">My activity</a></li>
+                    <li class="divider"></li>
+                    <li><a href="Logout">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
     </div>
 </nav>
-
-<!--div class="jumbotron">
-    <h1><a href="Landing">FamiPics</a></h1>
-</div-->

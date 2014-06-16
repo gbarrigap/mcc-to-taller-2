@@ -5,6 +5,7 @@
  */
 package famipics.servlet;
 
+import famipics.dao.RecordNotFoundException;
 import famipics.dao.RepositoryConnectionException;
 import famipics.dao.UniqueConstraintException;
 import famipics.domain.Pic;
@@ -12,9 +13,9 @@ import famipics.domain.User;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -57,12 +58,12 @@ public class UploadPicture extends HttpServlet {
         HttpSession currentSession = request.getSession(false);
         User currentUser = (User) currentSession.getAttribute("currentUser");
 
-        // gets absolute path of the web application
+        // Gets absolute path of the web application.
         String appPath = request.getServletContext().getRealPath("");
-        // constructs path of the directory to save uploaded file
+        // Constructs path of the directory to save uploaded files.
         String savePath = appPath + File.separator + SAVE_DIR;
 
-        // creates the save directory if it does not exists
+        // Creates the save directory if it does not exist.
         File fileSaveDir = new File(savePath);
         if (!fileSaveDir.exists()) {
             fileSaveDir.mkdir();
@@ -70,7 +71,20 @@ public class UploadPicture extends HttpServlet {
 
         try {
             Part filePart = request.getPart("filename");
-            String filename = String.format("%s-%s", Pic.getSecureFilenamePrefix(), extractFileName(filePart));
+            String filename = extractFileName(filePart);
+
+            // If no file was received, halt process.
+            if (filename.isEmpty()) {
+                response.sendRedirect("UploadPictures.jsp");
+                throw new NoPictureSelectedException();
+            }
+
+            // Given a picture is provided, come what may,
+            // the user will be redirected to the main page.
+            response.sendRedirect("Pics.jsp");
+            
+            String secureFilename = Pic.getSecureFilenamePrefix() + "-" + filename;
+            String filepath = savePath + File.separator + secureFilename;
             String comment = request.getParameter("comment");
 
             //for (Part part : request.getParts()) {
@@ -78,28 +92,46 @@ public class UploadPicture extends HttpServlet {
             //    //part.write(savePath + File.separator + filename);
             //    comment = extractComment(part);
             //}
-            filePart.write(savePath + File.separator + filename);
+            // Wait a few seconds, allowing the image to be uploaded
+            // completly, prior to redirecting the user to the main page.
+            // This is not a secure way to force full upload before
+            // redirection; should be improved!
+            synchronized (filePart) {
+                boolean wait = true;
+                while (wait) {
+                    filePart.write(filepath);
+                    filePart.wait(2500);
+                    wait = false;
+                }
+            }
 
+            String now = Calendar.getInstance().getTime().toString();
             Pic pic = new Pic();
             pic.setUser(currentUser);
-            pic.setFilename(filename);
+            pic.setFilename(secureFilename);
             pic.setComment(comment);
+            pic.setUploadedOn(now);
+            pic.setModifiedOn(now);
             pic.persist();
 
-            currentSession.setAttribute("uploadResultMessage", SUCCESS_MESSAGE);
+            currentSession.setAttribute("message", SUCCESS_MESSAGE);
+            currentSession.setAttribute("messageClass", "success");
         } catch (IOException ex) {
             Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
-            currentSession.setAttribute("uploadResultMessage", FAIL_MESSAGE);
-        } catch (RepositoryConnectionException ex) {
+            currentSession.setAttribute("message", FAIL_MESSAGE);
+            currentSession.setAttribute("messageClass", "danger");
+        } catch (RepositoryConnectionException | UniqueConstraintException | IllegalMonitorStateException ex) {
             Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UniqueConstraintException ex) {
+            currentSession.setAttribute("message", FAIL_MESSAGE);
+            currentSession.setAttribute("messageClass", "danger");
+        } catch (InterruptedException ex) {
             Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                response.sendRedirect("Pics.jsp");
-            } catch (IOException ex) {
-                Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } catch (NoPictureSelectedException ex) {
+            Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
+            currentSession.setAttribute("message", "You have to select a picture to upload.");
+            currentSession.setAttribute("messageClass", "warning");
+        } catch (RecordNotFoundException ex) {
+            Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -126,5 +158,8 @@ public class UploadPicture extends HttpServlet {
             }
         }
         return "";
+    }
+
+    private class NoPictureSelectedException extends Exception {
     }
 }

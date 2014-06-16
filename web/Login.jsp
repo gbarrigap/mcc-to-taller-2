@@ -7,6 +7,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+        <!-- jQuery -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
         <!-- Boostrap -->
         <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" />
         <link rel="stylesheet" href="lib/bootstrap/css/bootstrap-theme.css" />
@@ -19,8 +22,14 @@
         <div class="jumbotron">
             <h1>FamiPics</h1>
         </div>
-
+        
         <div class="container">
+            
+            <c:if test="${sessionScope.message != null}">
+                <div class="alert alert-${sessionScope.messageClass}">${sessionScope.message}</div>
+                <c:remove var="message" scope="session" />
+            </c:if>
+                
             <form method="post" action="Login">
                 <fieldset>
                     <div class="form-group">

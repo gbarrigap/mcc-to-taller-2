@@ -8,6 +8,7 @@ package famipics.dao.sqlite;
 import famipics.dao.UniqueConstraintException;
 import famipics.dao.InvalidLoginException;
 import famipics.dao.RecordNotFoundException;
+import famipics.dao.RepositoryConnectionException;
 import famipics.dao.UserDao;
 import famipics.dao.postgresql.PicDaoPostgresql;
 import famipics.domain.User;
@@ -150,6 +151,11 @@ public class UserDaoSqlite implements UserDao {
 
     @Override
     public User findByEmail(String email) throws RecordNotFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setLastLogin(User user) throws RepositoryConnectionException, RecordNotFoundException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

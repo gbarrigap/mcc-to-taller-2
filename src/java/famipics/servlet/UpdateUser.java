@@ -17,14 +17,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author guillermo
  */
-@WebServlet(name = "CreateAccount", urlPatterns = {"/CreateAccount"})
-public class CreateAccount extends HttpServlet {
+@WebServlet(name = "UpdateUser", urlPatterns = {"/UpdateUser"})
+public class UpdateUser extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -36,52 +35,29 @@ public class CreateAccount extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession();
+        request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
+        response.sendRedirect("Users.jsp?page=users");
 
         try {
-            String email = request.getParameter("email");
-            String displayName = request.getParameter("display-name");
-            String password = request.getParameter("password");
-            String confirmation = request.getParameter("password-confirmation");
-
-            // All fields required.
-            if (email.isEmpty() || displayName.isEmpty() || password.isEmpty()) {
-                session.setAttribute("message", "All fields required!");
-                session.setAttribute("messageClass", "warning");
-                response.sendRedirect("CreateAccount.jsp");
-                return;
+            User user = User.retrieve(Integer.parseInt(request.getParameter("uid")));
+            // Change required fields only if a valid value is given.
+            if (!request.getParameter("email").isEmpty()) {
+                user.setEmail(request.getParameter("email"));
             }
-            
-            // Passwords have to match.
-            if (!password.equals(confirmation)) {
-                session.setAttribute("message", "Passwords do not match!");
-                session.setAttribute("messageClass", "warning");
-                response.sendRedirect("CreateAccount.jsp");
-                return;
+            if (!request.getParameter("password").isEmpty()) {
+                user.setPassword(request.getParameter("password"));
             }
-
-            
-            User u = new User();
-            u.setEmail(email);
-            u.setDisplayName(displayName);
-            u.setPassword(password);
-
-            u.persist();
-            
-            session.setAttribute("message", "User account created successfully; you can log in now.");
-            session.setAttribute("messageClass", "success");
-            
-            response.sendRedirect("Login.jsp");
+            if (!request.getParameter("display-name").isEmpty()) {
+                user.setDisplayName(request.getParameter("display-name"));
+            }
+            String admin = request.getParameter("admin");
+            user.setAdmin(Boolean.parseBoolean(request.getParameter("admin")));
+            user.persist();
+        } catch (RecordNotFoundException | RepositoryConnectionException ex) {
+            Logger.getLogger(UpdateUser.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UniqueConstraintException ex) {
-            session.setAttribute("message", "Email already registered!");
-            session.setAttribute("messageClass", "danger");
-            response.sendRedirect("CreateAccount.jsp");
-            Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RepositoryConnectionException ex) {
-            Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RecordNotFoundException ex) {
-            Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UpdateUser.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

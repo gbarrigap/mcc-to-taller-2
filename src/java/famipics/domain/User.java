@@ -71,6 +71,21 @@ public class User {
         this.lastLogin = lastLogin;
     }
 
+    public void setLastLogin(String lastLogin, boolean persist) throws RecordNotFoundException {
+        this.lastLogin = lastLogin;
+
+        if (persist) {
+            try {
+                DaoFactory.getUserDao().setLastLogin(this);
+            } catch (RepositoryConnectionException ex) {
+                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (RecordNotFoundException ex) {
+                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+                throw ex;
+            }
+        }
+    }
+
     public boolean isAdmin() {
         return admin;
     }
@@ -110,7 +125,6 @@ public class User {
 //            }
 //        }
 //    }
-
     public List<Pic> getPics() {
         return pics;
     }
@@ -128,16 +142,34 @@ public class User {
         try {
             return DaoFactory.getUserDao().retrieveAll();
             /*List<User> users = new ArrayList<>();
-            for (int i = 1; i < 10; i++) {
-            User u = new User();
-            u.setEmail(String.format("email%d@example.com", i));
-            u.setDisplayName(String.format("User %d", i));
-            users.add(u);
-            }
-            return users;*/
+             for (int i = 1; i < 10; i++) {
+             User u = new User();
+             u.setEmail(String.format("email%d@example.com", i));
+             u.setDisplayName(String.format("User %d", i));
+             users.add(u);
+             }
+             return users;*/
         } catch (RepositoryConnectionException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<>();
+        }
+    }
+
+    public User find(int uid) throws RepositoryConnectionException, RecordNotFoundException {
+        try {
+            return DaoFactory.getUserDao().retrieve(uid);
+        } catch (RepositoryConnectionException | RecordNotFoundException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        }
+    }
+
+    public User find(String uid) throws RepositoryConnectionException, RecordNotFoundException {
+        try {
+            return find(Integer.parseInt(uid));
+        } catch (RepositoryConnectionException | RecordNotFoundException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
     }
 
@@ -149,7 +181,7 @@ public class User {
             throw ex;
         }
     }
-    
+
 //    public static User authenticate(String repositoryPath, String email, String password) throws InvalidLoginException, RepositoryConnectionException {
 //        try {
 //            return DaoFactory.getUserDao(repositoryPath).authenticate(email, password);
@@ -158,7 +190,6 @@ public class User {
 //            throw ex;
 //        }
 //    }
-
     public static User retrieve(int uid) throws RecordNotFoundException, RepositoryConnectionException {
         try {
             return DaoFactory.getUserDao().retrieve(uid);
@@ -170,7 +201,7 @@ public class User {
             throw ex;
         }
     }
-    
+
     public static User findByRememberToken(String token) throws RecordNotFoundException, RepositoryConnectionException {
         try {
             return DaoFactory.getUserDao().findByRememberToken(token);
@@ -184,13 +215,30 @@ public class User {
         return true;
     }
 
-    public void persist() throws UniqueConstraintException {
-        UserDao dao = null;
+    public void persist() throws RepositoryConnectionException, UniqueConstraintException, RecordNotFoundException {
+        if (this.uid > 0) {
+            try {
+                DaoFactory.getUserDao().update(this);
+            } catch (RecordNotFoundException | RepositoryConnectionException | UniqueConstraintException ex) {
+                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+                throw ex;
+            }
+        } else {
+            try {
+                DaoFactory.getUserDao().create(this);
+            } catch (RepositoryConnectionException | UniqueConstraintException ex) {
+                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+                throw ex;
+            }
+        }
+    }
+
+    public void destroy() throws RepositoryConnectionException, RecordNotFoundException {
         try {
-            dao = DaoFactory.getUserDao();
-            DaoFactory.getUserDao().create(this);
-        } catch (Exception ex) {
+            DaoFactory.getUserDao().delete(this);
+        } catch (RepositoryConnectionException | RecordNotFoundException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
     }
 }

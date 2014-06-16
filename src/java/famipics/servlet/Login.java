@@ -10,6 +10,7 @@ import famipics.dao.RecordNotFoundException;
 import famipics.dao.RepositoryConnectionException;
 import famipics.domain.User;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -59,14 +60,15 @@ public class Login extends HttpServlet {
             response.addCookie(cookie);
             //user.setRememberToken(repositoryPath, rememberToken, true);
             user.setRememberToken(rememberToken, true);
+            user.setLastLogin(Calendar.getInstance().getTime().toString(), true);
 
             // Send the user to the main page.
             response.sendRedirect("Pics.jsp");
         } catch (InvalidLoginException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-            // Redirects to the login page with a message.
+            session.setAttribute("message", "Login credentials not valid! Try again.");
+            session.setAttribute("messageClass", "warning");
             response.sendRedirect("Login.jsp");
-            //response.
         } catch (RepositoryConnectionException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
             // Let the user know about the error!

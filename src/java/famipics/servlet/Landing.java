@@ -52,7 +52,7 @@ public class Landing extends HttpServlet {
 
         // If no cookie was found, authenticate the user.
         if (rememberToken.isEmpty()) {
-            response.sendRedirect("Login.jsp");
+            response.sendRedirect("Login.jsp?page=home");
         } else {
             try {
                 User user = User.findByRememberToken(rememberToken);
@@ -60,9 +60,10 @@ public class Landing extends HttpServlet {
 
                 // @todo Enhance this procedure!
                 // Cookie found; go to the user's home!
-                response.sendRedirect("Pics.jsp");
+                response.sendRedirect("Pics.jsp?page=home");
             } catch (RecordNotFoundException | RepositoryConnectionException ex) {
                 Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
+                //response.sendRedirect("Logout");
             }
         }
 

@@ -26,9 +26,9 @@ public class Pic {
     private int uid;
     private String filename;
     private String comment;
-    private Date uploadedOn;
-    private Date takenOn;
-    private Date modifiedOn;
+    private String uploadedOn;
+    private String takenOn;
+    private String modifiedOn;
 
     public int getPid() {
         return pid;
@@ -82,32 +82,50 @@ public class Pic {
         }
     }
 
-    public Date getUploadedOn() {
+    public String getUploadedOn() {
         return uploadedOn;
     }
 
-    public void setUploadedOn(Date uploadedOn) {
+    public void setUploadedOn(String uploadedOn) {
         this.uploadedOn = uploadedOn;
     }
 
-    public Date getTakenOn() {
+    public String getTakenOn() {
         return takenOn;
     }
 
-    public void setTakenOn(Date takenOn) {
+    public void setTakenOn(String takenOn) {
         this.takenOn = takenOn;
     }
 
-    public Date getModifiedOn() {
+    public String getModifiedOn() {
         return modifiedOn;
     }
 
-    public void setModifiedOn(Date modifiedOn) {
+    public void setModifiedOn(String modifiedOn) {
         this.modifiedOn = modifiedOn;
     }
 
-    public void persist() throws RepositoryConnectionException, UniqueConstraintException {
-        DaoFactory.getPicDao().create(this);
+    public void persist() throws RepositoryConnectionException, UniqueConstraintException, RecordNotFoundException {
+        if (this.pid > 0) {
+            try {
+                DaoFactory.getPicDao().update(this);
+            } catch (RecordNotFoundException ex) {
+                Logger.getLogger(Pic.class.getName()).log(Level.SEVERE, null, ex);
+                throw ex;
+            }
+        } else {
+            DaoFactory.getPicDao().create(this);
+        }
+    }
+    
+    public void destroy() throws RepositoryConnectionException, RecordNotFoundException {
+        try {
+            DaoFactory.getPicDao().delete(this);
+        } catch (RepositoryConnectionException | RecordNotFoundException ex) {
+            Logger.getLogger(Pic.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        }
     }
 
     public static String getSecureFilenamePrefix() {
@@ -120,6 +138,24 @@ public class Pic {
         } catch (RepositoryConnectionException ex) {
             Logger.getLogger(Pic.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<>();
+        }
+    }
+    
+    public Pic find(int pid) throws RepositoryConnectionException, RecordNotFoundException {
+        try {
+            return DaoFactory.getPicDao().retrieve(pid);
+        } catch (RepositoryConnectionException | RecordNotFoundException ex) {
+            Logger.getLogger(Pic.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        }
+    }
+    
+    public Pic find(String pid) throws RepositoryConnectionException, RecordNotFoundException {
+        try {
+            return this.find(Integer.parseInt(pid));
+        } catch (RepositoryConnectionException | RecordNotFoundException ex) {
+            Logger.getLogger(Pic.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
     }
 
