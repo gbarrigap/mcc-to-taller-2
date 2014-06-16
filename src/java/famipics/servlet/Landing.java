@@ -63,7 +63,7 @@ public class Landing extends HttpServlet {
                 response.sendRedirect("Pics.jsp?page=home");
             } catch (RecordNotFoundException | RepositoryConnectionException ex) {
                 Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
-                //response.sendRedirect("Logout");
+                response.sendRedirect("Logout");
             }
         }
 
