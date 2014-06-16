@@ -7,12 +7,16 @@ package famipics.dao.sqlite;
 
 import famipics.dao.UniqueConstraintException;
 import famipics.dao.InvalidLoginException;
+import famipics.dao.RecordNotFoundException;
 import famipics.dao.UserDao;
+import famipics.dao.postgresql.PicDaoPostgresql;
 import famipics.domain.User;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +31,10 @@ public class UserDaoSqlite implements UserDao {
 
     public UserDaoSqlite(Connection connection) {
         this.connection = connection;
+    }
+
+    public UserDaoSqlite() {
+        this.connection = null;
     }
 
     @Override
@@ -73,16 +81,47 @@ public class UserDaoSqlite implements UserDao {
     }
 
     @Override
-    public List<User> retrieveAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public synchronized List<User> retrieveAll() {
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(UserDaoSqlite.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        String connString = "jdbc:sqlite:/tmp/famipics.db";
+        //connString = "jdbc:sqlite::memory:";
+        
+        try (
+                Connection conn = DriverManager.getConnection(connString);
+                //Connection conn = SqliteFactory.getConnection();
+        ) {
+            Statement statement = conn.createStatement();
+            statement.setQueryTimeout(5);
+            ResultSet rs = statement.executeQuery("SELECT email, display_name FROM users");
+            
+            List<User> users = new ArrayList<>();
+            while (rs.next()) {
+                User user = new User();
+                user.setEmail(rs.getString("email"));
+                user.setDisplayName(rs.getString("display_name"));
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException ex) {
+            Logger.getLogger(PicDaoPostgresql.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
     @Override
-    public User authenticate(String email, String password) throws InvalidLoginException {
-        try {
-            Statement statement = this.connection.createStatement();
-            String query = String.format("SELECT uid, display_name AS count FROM users WHERE email = '%s' AND password = '%s'", email, password);
+    public synchronized User authenticate(String email, String password) throws InvalidLoginException {
+        String query = String.format("SELECT uid, display_name AS count FROM users WHERE email = '%s' AND password = '%s'", email, password);
+        try (
+            Connection conn = SqliteFactory.getConnection();
+            Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery(query);
+                
+        ) {
             while (rs.next()) {
                 User user = new User();
                 user.setUid(rs.getInt("uid"));
@@ -93,8 +132,25 @@ public class UserDaoSqlite implements UserDao {
             }
         } catch (SQLException ex) {
             Logger.getLogger(UserDaoSqlite.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(UserDaoSqlite.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    @Override
+    public User findByRememberToken(String token) throws RecordNotFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setRememberToken(User user) throws RecordNotFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public User findByEmail(String email) throws RecordNotFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

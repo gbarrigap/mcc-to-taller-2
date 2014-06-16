@@ -1,11 +1,14 @@
 <%-- 
-    Document   : UploadPictures
-    Created on : Jun 13, 2014, 9:28:36 PM
+    Document   : Pic
+    Created on : Jun 15, 2014, 11:39:33 PM
     Author     : guillermo
 --%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="famipics.dao.DaoFactory"%>
+<%@page import="famipics.domain.Pic"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<% Pic pic = DaoFactory.getPicDao().retrieve(Integer.parseInt(request.getParameter("pid")));%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -23,14 +26,7 @@
     <body>
         <c:import url="Header.jsp"></c:import>
 
-        <div class="container">
-            <form method="post" action="UploadPicture" enctype="multipart/form-data">
-                <fieldset>
-                    <textarea id="comment" name="comment"></textarea>
-                    <input id="filename" name="filename" type="file" size="50" />
-                    <input type="submit" value="Upload picture" class="btn" />
-                </fieldset>
-            </form>
-        </div>
+            <img src="files/pics/<%= pic.getFilename()%>" style="max-width: 95%" />
+        <p><%= pic.getComment()%></p>
     </body>
 </html>

@@ -5,9 +5,10 @@ CREATE TABLE users (
     uid             SERIAL PRIMARY KEY,
     email           VARCHAR NOT NULL UNIQUE,
     display_name    VARCHAR NOT NULL,
-    password        VARCHAR NOT NULL,
+    password_digest VARCHAR NOT NULL,
     last_login      TIMESTAMP NULL,
-    is_admin        BOOLEAN NOT NULL DEFAULT FALSE
+    is_admin        BOOLEAN NOT NULL DEFAULT FALSE,
+    remember_token  VARCHAR
 );
 
 CREATE TABLE pics (

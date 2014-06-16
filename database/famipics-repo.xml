@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<root>
+    <entities>
+        <users>
+        <user admin="True" display-name="Aministrator" email="admin" famipics-remember-token="926BC2072EEFDF80F4C6B82864030472" last-login="0" password="a" uid="1"/>
+        </users>
+    
+        <pics>
+        <pic comment="" filename="1402891734662-srcBMW-Concept-M5-2004-001.jpg" pid="23" uid="1"/>
+        </pics>
+    </entities>
+    
+    <constraints>
+        <uids last="2"/>
+        <pids last="23"/>
+    </constraints>
+</root>

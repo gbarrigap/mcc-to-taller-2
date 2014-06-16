@@ -5,14 +5,18 @@
  */
 package famipics.servlet;
 
+import famipics.dao.RecordNotFoundException;
+import famipics.dao.RepositoryConnectionException;
+import famipics.domain.User;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -31,17 +35,47 @@ public class Landing extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(true);
+        //HttpSession session = request.getSession(true);
 
-        try (PrintWriter out = response.getWriter()) {
-            if (session.getAttribute("currentUser") == null) {
-                //out.println("<h1>Is new!</h2>");
-                response.sendRedirect("Login.jsp");
-            } else {
-                //out.println("<h1>Is old!</h2>");
+        // If there is a cookie for this user,
+        // assume previous authentication.
+        String rememberToken = "";
+        try {
+            for (Cookie cookie : request.getCookies()) {
+                if ("famipics_remember_token".equals(cookie.getName())) {
+                    rememberToken = cookie.getValue();
+                }
+            }
+        }catch(Exception ex) {
+            ex.toString();
+        }
+
+        // If no cookie was found, authenticate the user.
+        if (rememberToken.isEmpty()) {
+            response.sendRedirect("Login.jsp");
+        } else {
+            try {
+                User user = User.findByRememberToken(rememberToken);
+                request.getSession(true).setAttribute("currentUser", user);
+
+                // @todo Enhance this procedure!
+                // Cookie found; go to the user's home!
                 response.sendRedirect("Pics.jsp");
+            } catch (RecordNotFoundException | RepositoryConnectionException ex) {
+                Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
+
+        /*try (PrintWriter out = response.getWriter()) {
+         if (session.getAttribute("currentUser") == null) {
+         //out.println("<h1>Is new!</h2>");
+         response.sendRedirect("Login.jsp");
+         } else {
+         //out.println("<h1>Is old!</h2>");
+         response.sendRedirect("Pics.jsp");
+         }
+         }*/
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

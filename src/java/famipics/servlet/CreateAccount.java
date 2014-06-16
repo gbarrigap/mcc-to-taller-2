@@ -47,10 +47,10 @@ public class CreateAccount extends HttpServlet {
 
             u.persist();
 
-            //response.sendRedirect("index.html");
-            try (PrintWriter out = response.getWriter()) {
-                out.println(String.format("<h1>Bienvenido [uid: %d]</h1>", u.getUid()));
-            }
+            response.sendRedirect("Login.jsp");
+            //try (PrintWriter out = response.getWriter()) {
+            //    out.println(String.format("<h1>Bienvenido [uid: %d]</h1>", u.getUid()));
+            //}
         } catch (UniqueConstraintException ex) {
             try (PrintWriter out = response.getWriter()) {
                 out.println(String.format("<h1>Email duplicado!</h1>"));

@@ -6,6 +6,7 @@
 package famipics.servlet;
 
 import famipics.dao.InvalidLoginException;
+import famipics.dao.RecordNotFoundException;
 import famipics.dao.RepositoryConnectionException;
 import famipics.domain.User;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,14 +39,26 @@ public class Login extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession(true);
+        
+// Get this servlet context real path, to initialize the DAO
+        // object with the proper xml file.
+        //String repositoryPath = request.getServletContext().getRealPath("") + "/../../database/famipics-repo.xml";
 
         try {
             String email = request.getParameter("email");
             String password = request.getParameter("password");
-            
+
+            //User user = User.authenticate(repositoryPath, email, password);
             User user = User.authenticate(email, password);
-            
+
             session.setAttribute("currentUser", user);
+
+            String rememberToken = session.getId();
+            Cookie cookie = new Cookie("famipics_remember_token", rememberToken);
+            cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year expiration!
+            response.addCookie(cookie);
+            //user.setRememberToken(repositoryPath, rememberToken, true);
+            user.setRememberToken(rememberToken, true);
 
             // Send the user to the main page.
             response.sendRedirect("Pics.jsp");
@@ -56,6 +70,8 @@ public class Login extends HttpServlet {
         } catch (RepositoryConnectionException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
             // Let the user know about the error!
+        } catch (RecordNotFoundException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

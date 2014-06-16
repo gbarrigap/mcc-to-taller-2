@@ -4,10 +4,14 @@
  * and open the template in the editor.
  */
 
-package famipics.servlet;
+package famipics.servlet.tests;
 
+import famipics.dao.sqlite.UserDaoSqlite;
+import famipics.domain.User;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author guillermo
  */
-@WebServlet(name = "AuthorizationServlet", urlPatterns = {"/AuthorizationServlet"})
-public class AuthorizationServlet extends HttpServlet {
+@WebServlet(name = "SqliteTests", urlPatterns = {"/SqliteTests"})
+public class SqliteTests extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,15 +37,24 @@ public class AuthorizationServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        //List<User> users = new UserDaoPostgresql().retrieveAll();
+        List<User> users = new UserDaoSqlite().retrieveAll();
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AuthorizationServlet</title>");            
+            out.println("<title>Servlet SqliteTests</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet AuthorizationServlet at " + request.getContextPath() + "</h1>");
+            out.println(new Date().getTime());
+            out.println("<h1>Servlet SqliteTests at " + request.getContextPath() + "</h1>");
+            out.println(String.format("<h1>%d</h1>", users.size()));
+            //out.println("<ul>");
+            //for (User user : users) {
+            //out.println(String.format("<li>%s</li>", user.getDisplayName()));
+            //}
+            out.println("</ul>");
             out.println("</body>");
             out.println("</html>");
         }

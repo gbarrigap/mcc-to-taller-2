@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<root>
+    <entities>
+        <users>
+        <user display-name="Condorito" email="condorito@pepo.cl"/>
+        <user display-name="Pepe Cortisona" email="plomazo@pepo.cl"/>
+        <user display-name="Garganta de Lata" email="garganta2@pepo.cl"/>
+        </users>
+        
+        <pics>
+        <pic filename="hola.jpg"/>
+        <pic filename="hola.jpg"/>
+        </pics>
+    </entities>
+</root>

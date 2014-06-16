@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="file:/home/guillermo/Documents/Academico/UBB/MCC%202014/1.%20Primer%20Semestre/TO/Talleres/Taller%202/WebApp/FamiPics/../../Alan/RedFamiliar/web/extras/basedatos.xml" uri="src/conf/xml-resources/jaxb/RedFamiliar/basedatos.xml"/>
+</catalog>

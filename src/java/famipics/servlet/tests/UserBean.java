@@ -3,11 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package famipics.servlet.tests;
 
-package famipics.servlet;
-
+import famipics.dao.DaoFactory;
+import famipics.dao.RecordNotFoundException;
+import famipics.dao.RepositoryConnectionException;
+import famipics.domain.Pic;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,8 +23,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author guillermo
  */
-@WebServlet(name = "ListPicsServlet", urlPatterns = {"/ListPicsServlet"})
-public class ListPicsServlet extends HttpServlet {
+@WebServlet(name = "UserBean", urlPatterns = {"/UserBean"})
+public class UserBean extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,17 +38,24 @@ public class ListPicsServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+
         try (PrintWriter out = response.getWriter()) {
+            Pic pic = DaoFactory.getPicDao().retrieve(12);
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ListPicsServlet</title>");            
+            out.println("<title>Servlet UserBean</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ListPicsServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet UserBean at " + request.getContextPath() + "</h1>");
+            out.printf("<p>Comment: %s</p><p>Teaser: %s</p>", pic.getComment(), pic.getTeaser());
             out.println("</body>");
             out.println("</html>");
+        } catch (RepositoryConnectionException ex) {
+            Logger.getLogger(UserBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RecordNotFoundException ex) {
+            Logger.getLogger(UserBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

@@ -25,9 +25,10 @@ public class User {
     private int uid;
     private String email;
     private String displayName;
-    private String password;
+    private String passwordDigest;
     private String lastLogin;
     private boolean admin;
+    private String rememberToken;
     private List<Pic> pics;
 
     public int getUid() {
@@ -55,11 +56,11 @@ public class User {
     }
 
     public String getPassword() {
-        return password;
+        return passwordDigest;
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.passwordDigest = password;
     }
 
     public String getLastLogin() {
@@ -78,6 +79,38 @@ public class User {
         this.admin = admin;
     }
 
+    public String getRememberToken() {
+        return rememberToken;
+    }
+
+    public void setRememberToken(String rememberToken) {
+        this.rememberToken = rememberToken;
+    }
+
+    public void setRememberToken(String rememberToken, boolean persist) throws RecordNotFoundException {
+        this.rememberToken = rememberToken;
+
+        if (persist) {
+            try {
+                DaoFactory.getUserDao().setRememberToken(this);
+            } catch (RepositoryConnectionException ex) {
+                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+//    public void setRememberToken(String repositoryPath, String rememberToken, boolean persist) throws RecordNotFoundException {
+//        this.rememberToken = rememberToken;
+//
+//        if (persist) {
+//            try {
+//                DaoFactory.getUserDao(repositoryPath).setRememberToken(this);
+//            } catch (RepositoryConnectionException ex) {
+//                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//    }
+
     public List<Pic> getPics() {
         return pics;
     }
@@ -92,14 +125,20 @@ public class User {
      * @return A list of existent users.
      */
     public List<User> getAll() {
-        List<User> users = new ArrayList<>();
-        for (int i = 1; i < 10; i++) {
+        try {
+            return DaoFactory.getUserDao().retrieveAll();
+            /*List<User> users = new ArrayList<>();
+            for (int i = 1; i < 10; i++) {
             User u = new User();
             u.setEmail(String.format("email%d@example.com", i));
             u.setDisplayName(String.format("User %d", i));
             users.add(u);
+            }
+            return users;*/
+        } catch (RepositoryConnectionException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            return new ArrayList<>();
         }
-        return users;
     }
 
     public static User authenticate(String email, String password) throws InvalidLoginException, RepositoryConnectionException {
@@ -110,6 +149,15 @@ public class User {
             throw ex;
         }
     }
+    
+//    public static User authenticate(String repositoryPath, String email, String password) throws InvalidLoginException, RepositoryConnectionException {
+//        try {
+//            return DaoFactory.getUserDao(repositoryPath).authenticate(email, password);
+//        } catch (InvalidLoginException | RepositoryConnectionException ex) {
+//            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+//            throw ex;
+//        }
+//    }
 
     public static User retrieve(int uid) throws RecordNotFoundException, RepositoryConnectionException {
         try {
@@ -117,6 +165,15 @@ public class User {
         } catch (RecordNotFoundException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
             throw new RecordNotFoundException();
+        } catch (RepositoryConnectionException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        }
+    }
+    
+    public static User findByRememberToken(String token) throws RecordNotFoundException, RepositoryConnectionException {
+        try {
+            return DaoFactory.getUserDao().findByRememberToken(token);
         } catch (RepositoryConnectionException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
             throw ex;

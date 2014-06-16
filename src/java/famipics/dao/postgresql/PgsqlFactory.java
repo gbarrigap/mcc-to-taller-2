@@ -31,7 +31,7 @@ final class PgsqlFactory {
 
             return DriverManager.getConnection(url, props);
         } catch (SQLException | ClassNotFoundException ex) {
-            Logger.getLogger(DaoFactory.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PgsqlFactory.class.getName()).log(Level.SEVERE, null, ex);
             throw ex;
         }
     }

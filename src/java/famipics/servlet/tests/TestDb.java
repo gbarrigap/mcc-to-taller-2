@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package famipics.servlet;
+package famipics.servlet.tests;
 
 import famipics.dao.DaoFactory;
 import famipics.dao.UniqueConstraintException;

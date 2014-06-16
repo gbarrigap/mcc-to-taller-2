@@ -7,6 +7,7 @@ package famipics.dao.postgresql;
 
 import famipics.dao.UniqueConstraintException;
 import famipics.dao.InvalidLoginException;
+import famipics.dao.RecordNotFoundException;
 import famipics.dao.UserDao;
 import famipics.domain.User;
 import java.sql.Connection;
@@ -27,6 +28,9 @@ public class UserDaoPostgresql implements UserDao {
     
     private final String authenticateQuery = "SELECT uid, display_name FROM users WHERE email = '%s' AND password = '%s'";
     private final String createStatement = "";
+    private final String updateStatement = "UPDATE users SET email = '%s', display_name = '%s', is_admin = %s, remember_token = '%s' WHERE uid = %d";
+    private final String setRememberTokenStatement = "UPDATE users SET remember_token = '%s' WHERE uid = %d";
+    private final String findByRememberTokenQuery = "SELECT uid, email, display_name, is_admin FROM users WHERE remember_token = '%s'";
 
     /*private final Connection connection;
 
@@ -92,8 +96,16 @@ public class UserDaoPostgresql implements UserDao {
     }
 
     @Override
-    public void update(User t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void update(User user) {
+        String statement = String.format(this.updateStatement, user.getEmail());
+        try (
+                Connection connection = PgsqlFactory.getConnection();
+                PreparedStatement st = connection.prepareStatement(statement);
+        ) {
+            st.executeUpdate();
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(UserDaoPostgresql.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -125,4 +137,45 @@ public class UserDaoPostgresql implements UserDao {
         return users;
     }
 
+    @Override
+    public User findByRememberToken(String token) throws RecordNotFoundException {
+        try (
+                Connection connection = PgsqlFactory.getConnection();
+                Statement statement = connection.createStatement();
+                ResultSet rs = statement.executeQuery(String.format(this.findByRememberTokenQuery, token));
+        ) {
+            while (rs.next()) {
+                User user = new User();
+                user.setUid(rs.getInt("uid"));
+                user.setEmail(rs.getString("email"));
+                user.setDisplayName(rs.getString("display_name"));
+                user.setAdmin(rs.getBoolean("is_admin"));
+                return user;
+            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(UserDaoPostgresql.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        throw new RecordNotFoundException();
+    }
+
+    @Override
+    public void setRememberToken(User user) throws RecordNotFoundException {
+        String statement = String.format(this.setRememberTokenStatement, user.getRememberToken(), user.getUid());
+        try (
+                Connection connection = PgsqlFactory.getConnection();
+                PreparedStatement st = connection.prepareStatement(statement);
+        ) {
+            if (st.executeUpdate() != 1) {
+                throw new RecordNotFoundException();
+            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(UserDaoPostgresql.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public User findByEmail(String email) throws RecordNotFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

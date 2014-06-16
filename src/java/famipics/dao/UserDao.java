@@ -24,7 +24,14 @@ public interface UserDao extends Dao<User> {
      * @param email
      * @param password
      * @return An autenticated user or <code>null</code>.
+     * @throws famipics.dao.RepositoryConnectionException
      * @throws famipics.dao.InvalidLoginException
      */
-    public User authenticate(String email, String password) throws InvalidLoginException;
+    public User authenticate(String email, String password) throws RepositoryConnectionException, InvalidLoginException;
+    
+    public void setRememberToken(User user) throws RepositoryConnectionException, RecordNotFoundException;
+    
+    public User findByRememberToken(String token) throws RepositoryConnectionException, RecordNotFoundException;
+    
+    public User findByEmail(String email) throws RepositoryConnectionException, RecordNotFoundException;
 }

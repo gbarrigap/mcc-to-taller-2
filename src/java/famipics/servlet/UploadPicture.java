@@ -11,6 +11,7 @@ import famipics.domain.Pic;
 import famipics.domain.User;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,8 +26,8 @@ import javax.servlet.http.Part;
 
 @WebServlet("/UploadPicture")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-                 maxFileSize       = 1024 * 1024 * 10, // 10MB
-                 maxRequestSize    = 1024 * 1024 * 50)   // 50MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50)   // 50MB
 public class UploadPicture extends HttpServlet {
 
     /**
@@ -47,6 +48,12 @@ public class UploadPicture extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        response.setContentType("text/html;charset=UTF-8");
+        try {
+            request.setCharacterEncoding("UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
+        }
         HttpSession currentSession = request.getSession(false);
         User currentUser = (User) currentSession.getAttribute("currentUser");
 
@@ -62,20 +69,31 @@ public class UploadPicture extends HttpServlet {
         }
 
         try {
-            for (Part part : request.getParts()) {
-                String filename = String.format("%s-%s", Pic.getSecureFilenamePrefix(), extractFileName(part));
-                part.write(savePath + File.separator + filename);
-                
-                Pic pic = new Pic();
-                pic.setUser(currentUser);
-                pic.setFilename(filename);
-                pic.persist();
-            }
+            Part filePart = request.getPart("filename");
+            String filename = String.format("%s-%s", Pic.getSecureFilenamePrefix(), extractFileName(filePart));
+            String comment = request.getParameter("comment");
+
+            //for (Part part : request.getParts()) {
+            //    filename = String.format("%s-%s", Pic.getSecureFilenamePrefix(), extractFileName(part));
+            //    //part.write(savePath + File.separator + filename);
+            //    comment = extractComment(part);
+            //}
+            filePart.write(savePath + File.separator + filename);
+
+            Pic pic = new Pic();
+            pic.setUser(currentUser);
+            pic.setFilename(filename);
+            pic.setComment(comment);
+            pic.persist();
 
             currentSession.setAttribute("uploadResultMessage", SUCCESS_MESSAGE);
-        } catch (IOException | RepositoryConnectionException | UniqueConstraintException ex) {
+        } catch (IOException ex) {
             Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
             currentSession.setAttribute("uploadResultMessage", FAIL_MESSAGE);
+        } catch (RepositoryConnectionException ex) {
+            Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UniqueConstraintException ex) {
+            Logger.getLogger(UploadPicture.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 response.sendRedirect("Pics.jsp");
@@ -93,6 +111,17 @@ public class UploadPicture extends HttpServlet {
         String[] items = contentDisp.split(";");
         for (String s : items) {
             if (s.trim().startsWith("filename")) {
+                return s.substring(s.indexOf("=") + 2, s.length() - 1);
+            }
+        }
+        return "";
+    }
+
+    private String extractComment(Part part) {
+        String contentDisp = part.getHeader("content-disposition");
+        String[] items = contentDisp.split(";");
+        for (String s : items) {
+            if (s.trim().startsWith("comment")) {
                 return s.substring(s.indexOf("=") + 2, s.length() - 1);
             }
         }

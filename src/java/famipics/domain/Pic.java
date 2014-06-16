@@ -23,6 +23,7 @@ public class Pic {
 
     private int pid;
     private User user;
+    private int uid;
     private String filename;
     private String comment;
     private Date uploadedOn;
@@ -45,6 +46,14 @@ public class Pic {
         this.user = user;
     }
 
+    public int getUid() {
+        return uid;
+    }
+
+    public void setUid(int uid) {
+        this.uid = uid;
+    }
+
     public String getFilename() {
         return filename;
     }
@@ -59,6 +68,18 @@ public class Pic {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getTeaser() {
+        try {
+            return this.comment.substring(0, 30);
+        } catch (StringIndexOutOfBoundsException ex) {
+            if (null == this.comment || this.comment.isEmpty()) {
+                return "Not commented yet";
+            } else {
+                return this.comment;
+            }
+        }
     }
 
     public Date getUploadedOn() {
@@ -84,15 +105,15 @@ public class Pic {
     public void setModifiedOn(Date modifiedOn) {
         this.modifiedOn = modifiedOn;
     }
-    
+
     public void persist() throws RepositoryConnectionException, UniqueConstraintException {
         DaoFactory.getPicDao().create(this);
     }
-    
+
     public static String getSecureFilenamePrefix() {
         return Long.toString(new Date().getTime());
     }
-    
+
     public List<Pic> getAll() {
         try {
             return DaoFactory.getPicDao().retrieveAll();
@@ -101,7 +122,7 @@ public class Pic {
             return new ArrayList<>();
         }
     }
-    
+
     public static Pic retrieve(int pid) throws RecordNotFoundException, RepositoryConnectionException {
         try {
             return DaoFactory.getPicDao().retrieve(pid);

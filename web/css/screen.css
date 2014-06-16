@@ -2,6 +2,10 @@
     width: 500px;
 }
 
+div.thumbnail div.caption {
+    height: 100px;
+}
+
 nav > div.container {
     width: inherit;
 }

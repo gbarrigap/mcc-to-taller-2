@@ -30,11 +30,11 @@
 
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input id="password" name="password" type="text" class="form-control" />
+                        <input id="password" name="password" type="password" class="form-control" />
                     </div>
 
                     <div class="form-group text-right">
-                        <a href="#">I don't have an account</a>
+                        <a href="CreateAccount.jsp">I don't have an account</a>
                         <input type="submit" value="Login" class="btn btn-primary" />
                     </div>
                 </fieldset>
