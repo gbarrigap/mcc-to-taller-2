@@ -9,7 +9,9 @@ import famipics.dao.InvalidLoginException;
 import famipics.dao.RecordNotFoundException;
 import famipics.dao.RepositoryConnectionException;
 import famipics.domain.User;
+import famipics.util.HashUtilities;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,17 +42,13 @@ public class Login extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession(true);
-        
-// Get this servlet context real path, to initialize the DAO
-        // object with the proper xml file.
-        //String repositoryPath = request.getServletContext().getRealPath("") + "/../../database/famipics-repo.xml";
 
         try {
             String email = request.getParameter("email");
             String password = request.getParameter("password");
 
             //User user = User.authenticate(repositoryPath, email, password);
-            User user = User.authenticate(email, password);
+            User user = User.authenticate(email, HashUtilities.sha1(password));
 
             session.setAttribute("currentUser", user);
 
@@ -74,6 +72,11 @@ public class Login extends HttpServlet {
             // Let the user know about the error!
         } catch (RecordNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            session.setAttribute("message", "A problem occurred while trying to encrypt your password.");
+            session.setAttribute("messageClass", "danger");
+            response.sendRedirect("Login.jsp");
         }
     }
 

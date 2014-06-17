@@ -6,11 +6,14 @@
 package famipics.domain;
 
 import famipics.dao.DaoFactory;
-import famipics.dao.RepositoryConnectionException;
-import famipics.dao.UniqueConstraintException;
 import famipics.dao.InvalidLoginException;
 import famipics.dao.RecordNotFoundException;
+import famipics.dao.RepositoryConnectionException;
+import famipics.dao.UniqueConstraintException;
 import famipics.dao.UserDao;
+import famipics.util.HashUtilities;
+import famipics.util.PasswordEncryptionException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -61,6 +64,15 @@ public class User {
 
     public void setPassword(String password) {
         this.passwordDigest = password;
+    }
+
+    public void setPassword(String password, boolean encrypt) throws PasswordEncryptionException {
+        try {
+            this.passwordDigest = encrypt ? HashUtilities.sha1(password) : password;
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            throw new PasswordEncryptionException();
+        }
     }
 
     public String getLastLogin() {

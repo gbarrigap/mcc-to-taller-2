@@ -9,6 +9,7 @@ import famipics.dao.RecordNotFoundException;
 import famipics.dao.RepositoryConnectionException;
 import famipics.dao.UniqueConstraintException;
 import famipics.domain.User;
+import famipics.util.PasswordEncryptionException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,18 +61,18 @@ public class CreateAccount extends HttpServlet {
                 response.sendRedirect("CreateAccount.jsp");
                 return;
             }
-
             
             User u = new User();
             u.setEmail(email);
             u.setDisplayName(displayName);
-            u.setPassword(password);
+            
+            // Set an encrypted representation of the password.
+            u.setPassword(password, true);
 
             u.persist();
             
             session.setAttribute("message", "User account created successfully; you can log in now.");
             session.setAttribute("messageClass", "success");
-            
             response.sendRedirect("Login.jsp");
         } catch (UniqueConstraintException ex) {
             session.setAttribute("message", "Email already registered!");
@@ -81,6 +82,8 @@ public class CreateAccount extends HttpServlet {
         } catch (RepositoryConnectionException ex) {
             Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RecordNotFoundException ex) {
+            Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (PasswordEncryptionException ex) {
             Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

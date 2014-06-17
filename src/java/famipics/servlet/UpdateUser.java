@@ -9,6 +9,7 @@ import famipics.dao.RecordNotFoundException;
 import famipics.dao.RepositoryConnectionException;
 import famipics.dao.UniqueConstraintException;
 import famipics.domain.User;
+import famipics.util.PasswordEncryptionException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +18,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -35,28 +37,42 @@ public class UpdateUser extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         response.sendRedirect("Users.jsp?page=users");
 
         try {
+            String password = request.getParameter("password");
+            String confirmation = request.getParameter("password-confirmation");
+            
+            // Passwords have to match.
+            if (!password.equals(confirmation)) {
+                session.setAttribute("message", "Passwords do not match!");
+                session.setAttribute("messageClass", "warning");
+                response.sendRedirect("CreateAccount.jsp");
+                return;
+            }
+            
             User user = User.retrieve(Integer.parseInt(request.getParameter("uid")));
             // Change required fields only if a valid value is given.
             if (!request.getParameter("email").isEmpty()) {
                 user.setEmail(request.getParameter("email"));
             }
             if (!request.getParameter("password").isEmpty()) {
-                user.setPassword(request.getParameter("password"));
+                // Set an encrypted representation of the password.
+                user.setPassword(password, true);
             }
             if (!request.getParameter("display-name").isEmpty()) {
                 user.setDisplayName(request.getParameter("display-name"));
             }
-            String admin = request.getParameter("admin");
             user.setAdmin(Boolean.parseBoolean(request.getParameter("admin")));
             user.persist();
         } catch (RecordNotFoundException | RepositoryConnectionException ex) {
             Logger.getLogger(UpdateUser.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UniqueConstraintException ex) {
+            Logger.getLogger(UpdateUser.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (PasswordEncryptionException ex) {
             Logger.getLogger(UpdateUser.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
