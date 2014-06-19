@@ -47,7 +47,6 @@ public class Login extends HttpServlet {
             String email = request.getParameter("email");
             String password = request.getParameter("password");
 
-            //User user = User.authenticate(repositoryPath, email, password);
             User user = User.authenticate(email, HashUtilities.sha1(password));
 
             session.setAttribute("currentUser", user);
@@ -56,7 +55,6 @@ public class Login extends HttpServlet {
             Cookie cookie = new Cookie("famipics_remember_token", rememberToken);
             cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year expiration!
             response.addCookie(cookie);
-            //user.setRememberToken(repositoryPath, rememberToken, true);
             user.setRememberToken(rememberToken, true);
             user.setLastLogin(Calendar.getInstance().getTime().toString(), true);
 

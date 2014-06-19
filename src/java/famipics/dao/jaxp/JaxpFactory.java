@@ -11,5 +11,5 @@ package famipics.dao.jaxp;
  * @author guillermo
  */
 final class JaxpFactory {
-    static final String repositoryPath = "/home/guillermo/Documents/Academico/UBB/MCC 2014/1. Primer Semestre/TO/Talleres/Taller 2/WebApp/FamiPics/database/famipics-repo.xml";
+    static final String repositoryPath = System.getProperty("repoPath");
 }

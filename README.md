@@ -25,3 +25,10 @@ Observaciones: Para el almacenamiento de información debe utilizar archivos.
 
 Se debe entregar el código fuente y un documento donde se describan los objetos
 usados, las páginas creadas, y la estrategia utilizada para resolver el problema.
+
+## Cambios posteriores a la entrega
+
+* En el servlet famipics.servlet.Landing.java se almacenan en la sesión
+las rutas del directorio contenedor de imágenes, y la ruta del archivo XML.
+
+* famipics.dao.jaxp.JaxpFactory.repositoryPath = System.getProperty("repoPath");

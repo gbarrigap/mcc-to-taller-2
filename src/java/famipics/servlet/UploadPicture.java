@@ -35,7 +35,7 @@ public class UploadPicture extends HttpServlet {
      * Name of the directory where uploaded files will be saved, relative to the
      * web application directory.
      */
-    private static final String SAVE_DIR = "../../web/files/pics";
+    //private static final String SAVE_DIR = "/../../web/files/pics".replace("/", File.separator);
 
     private static final String SUCCESS_MESSAGE = "Upload successful";
     private static final String FAIL_MESSAGE = "Upload did not work";
@@ -59,14 +59,18 @@ public class UploadPicture extends HttpServlet {
         User currentUser = (User) currentSession.getAttribute("currentUser");
 
         // Gets absolute path of the web application.
-        String appPath = request.getServletContext().getRealPath("");
+        String appPath = request.getServletContext().getRealPath("") + "/../../web".replace("/", File.separator);
         // Constructs path of the directory to save uploaded files.
-        String savePath = appPath + File.separator + SAVE_DIR;
+        String savePath = appPath + "/files/pics".replace("/", File.separator);
 
         // Creates the save directory if it does not exist.
         File fileSaveDir = new File(savePath);
         if (!fileSaveDir.exists()) {
-            fileSaveDir.mkdir();
+            if (fileSaveDir.mkdir()) {
+                System.out.println("Directory for pictures created at " + fileSaveDir.getAbsolutePath());
+            } else {
+                System.out.println("Failed trying to create directory for pictures at " + fileSaveDir.getAbsolutePath());
+            }
         }
 
         try {

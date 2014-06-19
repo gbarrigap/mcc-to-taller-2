@@ -2,7 +2,7 @@
 <root>
     <entities>
         <users>
-        <user admin="true" display-name="Aministrator" email="admin@mail.com" famipics-remember-token="77AF29ABA67A298F6FC4C7DF03081909" last-login="Mon Jun 16 23:15:41 CLT 2014" password="86f7e437faa5a7fce15d1ddcb9eaeaea377667b8" uid="1"/>
+        <user admin="true" display-name="Aministrator" email="admin@mail.com" famipics-remember-token="EB7DF7979936726FBE9580E09CB5BB62" last-login="Wed Jun 18 20:55:01 CLT 2014" password="86f7e437faa5a7fce15d1ddcb9eaeaea377667b8" uid="1"/>
         </users>
     
         <pics>
@@ -10,7 +10,7 @@
     </entities>
     
     <constraints>
-        <uids last="12"/>
-        <pids last="50"/>
+        <uids last="13"/>
+        <pids last="55"/>
     </constraints>
 </root>

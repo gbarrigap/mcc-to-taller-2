@@ -8,6 +8,7 @@ package famipics.servlet;
 import famipics.dao.RecordNotFoundException;
 import famipics.dao.RepositoryConnectionException;
 import famipics.domain.User;
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +18,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -35,7 +37,16 @@ public class Landing extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(true);
+        
+        // Initializes paths, the application need to know,
+        // saving them as a system property.
+        if (System.getProperty("repoPath") == null) {
+            String basePath = request.getServletContext().getRealPath("");
+            String repoPath = basePath + "/../../database/famipics-repo.xml".replace("/", File.separator);
+            System.setProperty("repoPath", repoPath);
+            System.out.println("Setting system property repoPath as " + repoPath);
+        }
 
         // If there is a cookie for this user,
         // assume previous authentication.
@@ -46,13 +57,13 @@ public class Landing extends HttpServlet {
                     rememberToken = cookie.getValue();
                 }
             }
-        }catch(Exception ex) {
+        } catch (Exception ex) {
             ex.toString();
         }
 
         // If no cookie was found, authenticate the user.
         if (rememberToken.isEmpty()) {
-            response.sendRedirect("Login.jsp?page=home");
+            response.sendRedirect("Login.jsp");
         } else {
             try {
                 User user = User.findByRememberToken(rememberToken);
@@ -66,17 +77,6 @@ public class Landing extends HttpServlet {
                 response.sendRedirect("Logout");
             }
         }
-
-
-        /*try (PrintWriter out = response.getWriter()) {
-         if (session.getAttribute("currentUser") == null) {
-         //out.println("<h1>Is new!</h2>");
-         response.sendRedirect("Login.jsp");
-         } else {
-         //out.println("<h1>Is old!</h2>");
-         response.sendRedirect("Pics.jsp");
-         }
-         }*/
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
