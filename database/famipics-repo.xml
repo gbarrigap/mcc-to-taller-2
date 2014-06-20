@@ -2,15 +2,20 @@
 <root>
     <entities>
         <users>
-        <user admin="true" display-name="Aministrator" email="admin@mail.com" famipics-remember-token="EB7DF7979936726FBE9580E09CB5BB62" last-login="Wed Jun 18 20:55:01 CLT 2014" password="86f7e437faa5a7fce15d1ddcb9eaeaea377667b8" uid="1"/>
+        <user admin="true" display-name="Aministrator" email="admin@mail.com" famipics-remember-token="0BB8C65B162881D9F376DE6C0F429272" last-login="Thu Jun 19 01:50:59 CLT 2014" password="86f7e437faa5a7fce15d1ddcb9eaeaea377667b8" uid="1"/>
+        <user display-name="Guillermo Barriga Placencia" email="gbarrigap@yahoo.es" famipics-remember-token="0DA2FC8CECD27C58487AC91F79F99655" last-login="Thu Jun 19 01:52:12 CLT 2014" password="54fd1711209fb1c0781092374132c66e79e2241b" uid="14"/>
+        <user display-name="Uvita" email="elekuss@gmail.com" password="13fbd79c3d390e5d6585a21e11ff5ec1970cff0c" uid="15"/>
         </users>
     
         <pics>
+        <pic comment="" filename="1403157141629-Forest flowers.jpg" modified="Thu Jun 19 01:52:24 CLT 2014" pid="56" uid="14" uploaded="Thu Jun 19 01:52:24 CLT 2014"/>
+        <pic comment="" filename="1403157150703-Waterfall.jpg" modified="Thu Jun 19 01:52:33 CLT 2014" pid="57" uid="14" uploaded="Thu Jun 19 01:52:33 CLT 2014"/>
+        <pic comment="Camino" filename="1403157160663-Forest.jpg" modified="Thu Jun 19 01:53:40 CLT 2014" pid="58" uid="14" uploaded="Thu Jun 19 01:52:43 CLT 2014"/>
         </pics>
     </entities>
     
     <constraints>
-        <uids last="13"/>
-        <pids last="55"/>
+        <uids last="15"/>
+        <pids last="58"/>
     </constraints>
 </root>
